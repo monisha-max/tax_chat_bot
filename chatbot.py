@@ -1,25 +1,20 @@
 import openai
 import gradio as gr
 
-openai.api_key = "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"
-chat_history = []
-def CustomChatGPT(user_input, chat_history):
-    if chat_history is None:
-        chat_history = []
-    
-    if user_input.strip().lower() == "who are you":
-        return "I am a chatbot that answers tax-related queries.", chat_history
+openai.api_key = "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"
 
-    chat_history.append({"role": "user", "content": user_input})
+messages = [{"role": "system", "content": "assistant of IntelliTax"}]
 
+def CustomChatGPT(user_input):
+    messages.append({"role": "user", "content": user_input})
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
-        messages=chat_history
+        messages=messages
     )
     ChatGPT_reply = response["choices"][0]["message"]["content"]
-    chat_history.append({"role": "assistant", "content": ChatGPT_reply})
+    messages.append({"role": "assistant", "content": ChatGPT_reply})
+    return ChatGPT_reply
 
-    return ChatGPT_reply, chat_history
 css = """
 body, html {
     height: 100%;
@@ -27,8 +22,9 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #0E2954;
+    background: #E1AFD1; /* A deep blue shade */
 }
+
 body {
     font-family: 'Arial', sans-serif;
     color: #ffffff;
@@ -37,18 +33,19 @@ body {
 
 .gradio_container {
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-    background-color: #AD88C6;
+    background-color: #AD88C6; /* A light background for the content */
     border-radius: 15px;
-    overflow: hidden; 
+    overflow: hidden; /* Ensures the child elements do not overflow the rounded corners */
     margin: 20px;
     transition: transform 0.3s ease;
 }
+
 .gradio_container:hover {
-    transform: translateY(-5px);
+    transform: translateY(-5px); /* A subtle hover effect */
 }
 
 .gradio_content {
-    padding: 2rem; 
+    padding: 2rem; /* More padding for better spacing */
 }
 
 .input_text, .output_text, textarea, label, button {
@@ -56,7 +53,7 @@ body {
     border-radius: 5px;
     border: 2px solid #0b3d91;
     padding: 0.5rem;
-    margin-top: 0.5rem; 
+    margin-top: 0.5rem; /* Uniform spacing from the top */
 }
 
 .output_text, label {
@@ -77,7 +74,7 @@ button:hover {
 }
 
 .title, .description {
-    margin-bottom: 2rem;
+    margin-bottom: 2rem; /* More spacing above the title and description */
 }
 
 .title {
@@ -94,11 +91,12 @@ button:hover {
 
 demo = gr.Interface(
     fn=CustomChatGPT,
-    inputs=["text", gr.State()], 
-    outputs=["text", gr.State()], 
-    title="IntelliTax",
+    inputs=gr.Textbox(lines=2, placeholder="Type your question here..."),
+    outputs="text",
+    title="IntelliTax Assistant",
     description="This is an AI-powered tax assistant. Feel free to ask any tax-related questions!",
     css=css
+    
 )
 
 demo.launch(share=True)
